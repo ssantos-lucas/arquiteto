@@ -6,6 +6,7 @@ package controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -16,10 +17,6 @@ import model.Acesso;
 import model.Departamento;
 import model.EmpresaDAO;
 
-/**
- *
- * @author victor.hemcruz
- */
 @WebServlet(name = "Controle", urlPatterns = {"/Controle"})
 public class Controle extends HttpServlet {
 
@@ -77,6 +74,12 @@ public class Controle extends HttpServlet {
             }
             request.setAttribute("m", mensagem);
             RequestDispatcher disp = request.getRequestDispatcher("Mensagens.jsp");
+            disp.forward(request, response);
+        } else if (flag.equalsIgnoreCase("listarDepartamentos")) {
+            //Aqui faça a parte de lista de departamentos
+            List<Departamento> departamentos = new EmpresaDAO().listarDepartamentos();
+            request.setAttribute("listaDepartamentos", departamentos);
+            RequestDispatcher disp = request.getRequestDispatcher("listarDepartamentos.jsp");
             disp.forward(request, response);
         }
     } // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

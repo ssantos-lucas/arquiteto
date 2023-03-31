@@ -4,6 +4,7 @@
  */
 package model;
 
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -48,4 +49,16 @@ public class EmpresaDAO {
         }
 
     }
+    
+        public List<Departamento> listarDepartamentos() {
+        conectar();
+        try {
+            TypedQuery<Departamento> query = manager.createNamedQuery("Departamento.findAll", Departamento.class);
+            List<Departamento> departamentos = query.getResultList();
+            return departamentos;
+        } catch (NoResultException ex) {
+            return null;
+        }
+    }
+        
 }
