@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller;
 
 import java.io.IOException;
@@ -24,23 +20,23 @@ public class Controle extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        String flag, mensagem = null;
+        String flag, mensagem;
         flag = request.getParameter("flag");
-        if (flag.equalsIgnoreCase("login")) {
-            String user, password;
-            user = request.getParameter("usuario");
-            password = request.getParameter("senha");
+        if (flag.equals("login")) {
+            String u, s;
+            u = request.getParameter("usuario");
+            s = request.getParameter("senha");
             EmpresaDAO dao = new EmpresaDAO();
-            Acesso acesso = dao.validarLogin(user, password);
+            Acesso acesso = dao.validarLogin(u, s);
             if (acesso == null) {
-                request.setAttribute("m", "Usuário não encontrado");
+                request.setAttribute("m", "Usuário");
                 RequestDispatcher disp = request.getRequestDispatcher("Mensagens.jsp");
                 disp.forward(request, response);
             } else {
                 String nome, cargo;
                 nome = acesso.getFuncionario().getNomeFuncionario();
                 cargo = acesso.getFuncionario().getCargoFuncionario();
-                mensagem = "Bem vindo, " + nome + " (" + cargo + ")";
+                mensagem = "Bem vindo, " + nome + "(" + cargo + ")";
                 request.setAttribute("m", mensagem);
                 if (cargo.equalsIgnoreCase("Gerente")) {
                     RequestDispatcher disp = request.getRequestDispatcher("AcessoGerente.jsp");
@@ -58,67 +54,74 @@ public class Controle extends HttpServlet {
             dep.setIdDepartamento(request.getParameter("idDepartamento"));
             dep.setNomeDepartamento(request.getParameter("nomeDepartamento"));
             dep.setFoneDepartamento(request.getParameter("telefoneDepartamento"));
+
             int resultado = new EmpresaDAO().salvarDepartamento(dep);
             switch (resultado) {
                 case 1:
-                    mensagem = "Departamento salvo com sucesso.";
+                    mensagem = "Departamento salvo com sucesso";
                     break;
                 case 2:
-                    mensagem = "Departamento já cadastrado.";
-                    break;
-                case 3:
-                    mensagem = "Erro ao cadastrar departamento, contate um administrador.";
+                    mensagem = "Departamento já cadastrado";
                     break;
                 default:
+                    mensagem = "Erro: Entre em contato com o administrador";
                     break;
             }
             request.setAttribute("m", mensagem);
             RequestDispatcher disp = request.getRequestDispatcher("Mensagens.jsp");
             disp.forward(request, response);
+
         } else if (flag.equalsIgnoreCase("listarDepartamentos")) {
-            //Aqui faça a parte de lista de departamentos
+
             List<Departamento> departamentos = new EmpresaDAO().listarDepartamentos();
             request.setAttribute("listaDepartamentos", departamentos);
             RequestDispatcher disp = request.getRequestDispatcher("listarDepartamentos.jsp");
             disp.forward(request, response);
-        }
-    } // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+        } else if (flag.equalsIgnoreCase("consultarDepartamentos")) {
+            //Recebe o nome do departamento digitado do formulário 
+            String nomeDep = request.getParameter("nomeDepartamento");
+            //Cria-se esse DAO para ter acesso aos metodos da classe empresaDAO
+            EmpresaDAO dao = new EmpresaDAO();
+            //Chama o metodo consultar departamento passando o nome do departamento e recebe a lista devolvida pelo metodo
+            List<Departamento> departamentos = dao.consultarDepartamentos(nomeDep);
+            //Enviar a lista de departamentos para o arquivo ListarDepartamentos.jsp
+            request.setAttribute("listaDepartamentos", departamentos);
+            RequestDispatcher disp = request.getRequestDispatcher("listarDepartamentos.jsp");
+            disp.forward(request, response);
+        } else if (flag.equalsIgnoreCase("excluirDepartamento")) {
+            String idDep = request.getParameter("idDep");
+            EmpresaDAO dao = new EmpresaDAO();
+            int resultado = dao.excluirDepartamento(idDep);
+            if (resultado == 1) {
+                mensagem = "Departamento excluído com sucesso";
+            } else {
+                mensagem = "Erro ao tentar excluir o departamento";
+            }
+            request.setAttribute("m", mensagem);
+            RequestDispatcher disp = request.getRequestDispatcher("Mensagens.jsp");
+            disp.forward(request, response);
 
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+        } else if (flag.equalsIgnoreCase("alterarDepartamento")) {
+            String idDep = request.getParameter("idDep");
+        }
+
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
+
 }
